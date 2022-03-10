@@ -896,9 +896,10 @@ cdef class EdgeConnection:
         started_at = time.monotonic()
         try:
             if _dbview.in_tx():
-                units, self.last_state = await compiler_pool.compile_in_tx(
+                result = await compiler_pool.compile_in_tx(
                     _dbview.txid,
                     self.last_state,
+                    self.last_state_id,
                     query_req.source,
                     query_req.io_format,
                     query_req.expect_one,
@@ -910,7 +911,7 @@ cdef class EdgeConnection:
                     query_req.inline_objectids,
                 )
             else:
-                units, self.last_state = await compiler_pool.compile(
+                result = await compiler_pool.compile(
                     _dbview.dbname,
                     _dbview.get_user_schema(),
                     _dbview.get_global_schema(),
@@ -929,6 +930,7 @@ cdef class EdgeConnection:
                     self.protocol_version,
                     query_req.inline_objectids,
                 )
+            units, self.last_state, self.last_state_id = result
         finally:
             metrics.edgeql_query_compilation_duration.observe(
                 time.monotonic() - started_at)
@@ -951,9 +953,10 @@ cdef class EdgeConnection:
         started_at = time.monotonic()
         try:
             if _dbview.in_tx():
-                units, self.last_state = await compiler_pool.compile_in_tx(
+                result = await compiler_pool.compile_in_tx(
                     _dbview.txid,
                     self.last_state,
+                    self.last_state_id,
                     source,
                     FMT_SCRIPT,
                     False,
@@ -964,7 +967,7 @@ cdef class EdgeConnection:
                     self.protocol_version,
                 )
             else:
-                units, self.last_state = await compiler_pool.compile(
+                result = await compiler_pool.compile(
                     _dbview.dbname,
                     _dbview.get_user_schema(),
                     _dbview.get_global_schema(),
@@ -982,6 +985,7 @@ cdef class EdgeConnection:
                     stmt_mode,
                     self.protocol_version,
                 )
+            units, self.last_state, self.last_state_id = result
         finally:
             metrics.edgeql_query_compilation_duration.observe(
                 time.monotonic() - started_at)
