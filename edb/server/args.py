@@ -108,11 +108,15 @@ class CompilerPoolMode(enum.StrEnum):
         return cls
 
     def compute_default_pool_size(self):
+        # Different default value of pool size for different pooling modes
         if self.value == self.Fixed:
             return compute_default_compiler_pool_size()
         elif self.value == self.OnDemand:
             return 1
         elif self.value == self.Remote:
+            # this reflects to a local semaphore to control concurrency,
+            # 2 means this is a small EdgeDB instance that could only issue
+            # 2 concurrent compile requests at a time.
             return 2
         else:
             raise RuntimeError("Unknown --compiler-pool-mode")
@@ -656,11 +660,16 @@ _compiler_options = [
         type=int,
         callback=_validate_compiler_pool_size,
         default=compute_default_compiler_pool_size(),
+        help=f"Number of compiler worker processes. Defaults to "
+             f"{compute_default_compiler_pool_size()}.",
     ),
     click.option(
-        "--cache-size",
+        "--client-schema-cache-size",
         type=int,
         default=100,
+        help="Number of client schemas each worker could cache at most. The "
+             "compiler server is not affected by this setting, it keeps a "
+             "pickled copy of the client schema of all active clients."
     ),
     click.argument("socket_path"),
 ]
