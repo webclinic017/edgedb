@@ -222,7 +222,7 @@ class TestIntrospection(tb.QueryTestCase):
                 'links': [{
                     'name': '__type__',
                     'target': {
-                        'name': 'schema::ObjectType',
+                        'name': 'schema::Type',
                         'compound_type': False,
                     },
                     'cardinality': 'One',
