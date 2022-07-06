@@ -1,0 +1,146 @@
+==
+v2
+==
+
+:edb-alt-title: EdgeDB v2—Something
+
+..
+   .. image:: images/v1_nova.jpg
+	   :width: 100%
+
+
+EdgeDB 2.0 was released on July XX, 2022. Read the announcement
+blog post `here <v2anno_>`_.
+
+We would like to thank our community for reporting issues and
+contributing fixes. You are awesome! ❤️
+
+
+
+===
+2.0
+===
+
+Major EdgeQL Features
+=====================
+
+* Add a ``GROUP`` statement for performming aggregation
+  (`RFC 1009 <group_>`_, DOC LINK). The
+  output of ``GROUP`` are free objects that contain the aggregated
+  elements as a computed link:
+
+  .. code-block:: edgeql-repl
+
+	  db> group Card { name } by .element;
+	  {
+		{
+		  key: {element: 'Earth'},
+		  grouping: {'element'},
+		  elements: {
+			default::Card {name: 'Dwarf'},
+			default::Card {name: 'Golem'},
+		  },
+		},
+		{
+		  key: {element: 'Fire'},
+		  grouping: {'element'},
+		  elements: {
+			default::Card {name: 'Dragon'},
+			default::Card {name: 'Imp'},
+		  },
+		},
+		...
+	  }
+
+* Introduce global variables (`RFC 1010 <globals_>`_, DOC LINK).
+  Globals may be set with a ``SET GLOBAL`` command or via language
+  bindings.
+
+* Support access policies on object types (`RFC 1011 <acls_>`_, DOC LINK).
+  When combined with global variables, access policies can be used to
+  push authorization logic into the database.
+
+  XXX: EXAMPLE?
+
+* Add "range types" representing *intervals* of values
+  (`RFC 1012 <range_>`_, DOC LINK).
+
+  XXX: EXAMPLE?
+
+* XXX something with dates
+  (`RFC 1013 <dates_>`_, DOC LINK).
+
+* Add ``ON SOURCE DELETE DELETE TARGET`` and
+  ``ON SOURCE DELETE DELETE TARGET IF ORPHAN`` to implement cascading
+  deletion. (DOC LINK)
+
+  XXX: EXAMPLE?
+
+* Support specifying ``id`` explicitly when inserting objects
+  (:eql:gh:`#3895`). This can be useful when migrating data from
+  an existing database.
+
+Other
+=====
+
+* Support socket activation to reduce memory footprint on developer
+  machines (:eql:gh:`#3899`).
+
+
+
+
+Bug Fixes
+=========
+
+* Generate unique ``id`` fields for each free shape object,
+  and don't use an actual in-database object to represent it,
+  and make multiplicity inference understand free shapes better
+  (:eql:gh:`#3631`, :eql:gh:`#3633`, :eql:gh:`#3634`).
+
+* Fail if local Postgres cluster fails to start.
+
+* add `cfg::memory` to base types descriptor IDs table (:eql:gh:`#3882`).
+
+* Fix a cross-type exclusive constraint bug that could allow exclusive
+  constraints to be violated in some complex type hierarchies
+  (:eql:gh:`#3887`).
+
+* Fix issue wehre server might attempt to acquire one more connection
+  than it is configured to permit (:eql:gh:`#3901`).
+
+* Fix use of assert_exists on properties that are being directly output
+  (:eql:gh:`#3911`).
+
+* Fix a scope leakage that could cause a link referenced inside a computable
+  to improperly correlate with something outside the computable
+  (:eql:gh:`#3912`).
+
+* Fix a number of issues with the floordiv (`//`) and modulus (`%`)
+  operators where we could return incorrect values or produce spurious
+  errors, especially on very large values (:eql:gh:`#3909`).
+
+
+Protocol Overhaul
+=================
+
+* A new version of the protocol---version 1.0---has been introduced.
+  It eliminates all server state associated with connections that
+  do not use transactions.
+
+* Support passing parameters to and returning values from multi-statement
+  scripts.
+
+
+
+.. _group:
+    https://github.com/edgedb/rfcs/blob/master/text/1009-group.rst
+.. _globals:
+    https://github.com/edgedb/rfcs/blob/master/text/1010-global-vars.rst
+.. _acls:
+    https://github.com/edgedb/rfcs/blob/master/text/1011-object-level-security.rst
+.. _range:
+    https://github.com/edgedb/rfcs/blob/master/text/1012-range-types.rst
+.. _dates:
+    https://github.com/edgedb/rfcs/blob/master/text/1013-datetime-arithmetic.rst
+.. _v2anno:
+    https://www.edgedb.com/blog/edgedb-2-0
