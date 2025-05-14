@@ -93,6 +93,11 @@ def span_to_lsp(
 
 # Convert EdgeDBError into an LSP Diagnostic
 def error_to_lsp(error: errors.EdgeDBError) -> lsp_types.Diagnostic:
+    message: str = error.args[0]
+
+    if hint := error.hint:
+        message += f"\nHint: {hint}"
+
     return lsp_types.Diagnostic(
         range=(
             lsp_types.Range(
@@ -112,7 +117,7 @@ def error_to_lsp(error: errors.EdgeDBError) -> lsp_types.Diagnostic:
             )
         ),
         severity=lsp_types.DiagnosticSeverity.Error,
-        message=error.args[0],
+        message=message,
     )
 
 
