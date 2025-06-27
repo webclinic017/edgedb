@@ -4043,7 +4043,7 @@ class PointerMetaCommand(
         is_lprop = ptr.is_link_property(schema)
         is_multi = ptr_table and not is_lprop
         is_required = ptr.get_required(schema)
-        is_scalar = ptr.is_property(schema)
+        is_scalar = ptr.is_property()
 
         ref_ctx = self.get_referrer_context_or_die(context)
         ref_op = ref_ctx.op
@@ -4984,7 +4984,7 @@ class LinkMetaCommand(PointerMetaCommand[s_links.Link]):
                 table_name=new_table_name,
                 columns=[src_col, tgt_col]))
 
-        if not link.is_non_concrete(schema) and link.scalar():
+        if not link.is_non_concrete(schema) and link.is_property():
             tgt_prop = link.getptr(schema, sn.UnqualName('target'))
             tgt_ptr = types.get_pointer_storage_info(
                 tgt_prop, schema=schema)
