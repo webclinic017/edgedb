@@ -20385,6 +20385,11 @@ class TestDDLNonIsolated(tb.DDLTestCase):
             0,
         )
 
+    async def test_administer_fixup_backend_upgrade(self):
+        await self.con.execute('''
+            administer fixup_backend_upgrade()
+        ''')
+
 
 async def create_concurrent_indexes(db, msg_callback=print):
     '''Actually create all "create concurrently" indexes
